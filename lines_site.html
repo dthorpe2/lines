@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LINES 1.1 — Logographic Integrated Notation Expression System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ───────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#000;--white:#fff;--blue:#1a1aff;
+  --grey1:#f2f2f2;--grey2:#e0e0e0;--grey3:#999;--grey4:#444;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--white);color:var(--black);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+/* ── Type scale ─────────────────────────────────────────────────────────────── */
+.t-display{font-family:var(--serif);font-size:clamp(3rem,9vw,7.5rem);line-height:.95;letter-spacing:-.02em;color:var(--black)}
+.t-head{font-family:var(--serif);font-size:clamp(1.8rem,4vw,3.2rem);line-height:1.1;color:var(--black)}
+.t-subhead{font-family:var(--serif);font-size:clamp(1.2rem,2.5vw,1.8rem);line-height:1.3;font-style:italic}
+.t-body{font-size:1.05rem;line-height:1.75;color:var(--grey4);font-weight:300}
+.t-mono{font-family:var(--mono);font-size:.85rem}
+.t-label{font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--grey3)}
+#learn-overlay.show{display:flex !important}
+
+/* ── Specification ───────────────────────────────────────────────────────────── */
+.spec-rule-num{color:var(--blue);margin-bottom:.2rem}
+.spec-step{display:flex;gap:.8rem;font-size:.88rem;line-height:1.6;color:var(--grey4);padding:.3rem 0}
+.spec-step-n{font-family:var(--mono);font-size:.65rem;color:var(--blue);min-width:1.8rem;padding-top:.18rem}
+.spec-disambig{font-size:.88rem;line-height:1.6;color:var(--grey4);padding:.25rem 0;border-bottom:1px solid var(--grey1)}
+.spec-disambig:last-child{border-bottom:none}
+.spec-disambig-term{font-weight:500;color:var(--black);margin-right:.4rem}
+.learn-level-pip{transition:background .3s}
+.learn-level-pip.done{background:var(--black) !important}
+.learn-level-pip.active{background:var(--grey3) !important}
+.learn-sub-pip{transition:background .3s}
+.learn-sub-pip.done{background:var(--blue) !important}
+.learn-sub-pip.active{background:#7a88bb !important}
+#learn-word-input:focus{border-color:var(--black)}
+#learn-word-input.correct{border-color:var(--success,#00aa44);color:var(--success,#00aa44)}
+#learn-word-input.wrong{border-color:var(--fail,#ff2233);color:var(--fail,#ff2233)}
+#learn-timer.running{color:var(--blue)}
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.container{max-width:1100px;margin:0 auto;padding:0 2rem}
+.container--narrow{max-width:720px;margin:0 auto;padding:0 2rem}
+section{padding:7rem 0;border-top:1px solid var(--grey2);background:var(--white);color:var(--black)}
+section:first-of-type{border-top:none}
+
+/* ── Nav ────────────────────────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.9rem 2rem;background:rgba(255,255,255,.92);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--grey2);
+  z-index:100;
+}
+.nav-logo{font-family:var(--mono);font-weight:700;font-size:1.1rem;letter-spacing:.1em}
+.nav-links{display:flex;gap:2rem}
+.nav-links a{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey4);transition:color .15s}
+.nav-links a:hover{color:var(--black)}
+.nav-cta{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;background:var(--black);color:var(--white);padding:.45rem 1rem;transition:background .15s}
+.nav-cta:hover{background:var(--blue)}
+
+/* ── Hero ───────────────────────────────────────────────────────────────────── */
+#hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;padding:10rem 0 6rem;border-top:none;
+}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.hero-text{display:flex;flex-direction:column;gap:1.8rem}
+.hero-eyebrow{font-family:var(--mono);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue)}
+.hero-desc{font-size:1.15rem;line-height:1.7;color:var(--grey4);font-weight:300;max-width:480px}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.5rem}
+.btn{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;padding:.7rem 1.6rem;cursor:pointer;transition:all .15s;border:none}
+.btn-primary{background:var(--black);color:var(--white)}
+.btn-primary:hover{background:var(--blue)}
+.btn-secondary{background:transparent;color:var(--black);border:1.5px solid var(--black)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+
+/* Hero canvas */
+#hero-canvas-wrap{display:flex;align-items:center;justify-content:center;position:relative}
+#hero-canvas{width:100%;max-width:440px;aspect-ratio:1}
+.hero-caption{position:absolute;bottom:-1.5rem;left:50%;transform:translateX(-50%);white-space:nowrap}
+
+/* ── Stats strip ────────────────────────────────────────────────────────────── */
+#stats-strip{padding:3rem 0;background:var(--grey1);border-top:1px solid var(--grey2);border-bottom:1px solid var(--grey2)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.stat-item{padding:1.5rem 2rem;border-right:1px solid var(--grey2);text-align:center}
+.stat-item:last-child{border-right:none}
+.stat-n{font-family:var(--mono);font-size:2.4rem;font-weight:700;color:var(--black);line-height:1}
+.stat-u{font-family:var(--mono);font-size:1rem;color:var(--blue);margin-left:2px}
+.stat-l{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--grey3);margin-top:.4rem;font-family:var(--mono)}
+
+/* ── How it works ───────────────────────────────────────────────────────────── */
+.how-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.how-steps{display:flex;flex-direction:column;gap:2.5rem}
+.how-step{display:flex;gap:1.2rem;align-items:flex-start}
+.step-num{font-family:var(--mono);font-size:.7rem;color:var(--blue);letter-spacing:.1em;padding-top:.2rem;min-width:2rem}
+.step-body{}
+.step-title{font-size:1rem;font-weight:500;margin-bottom:.4rem}
+.step-desc{font-size:.9rem;line-height:1.65;color:var(--grey4);font-weight:300}
+.how-demo{position:sticky;top:8rem}
+#how-word-display{font-family:var(--mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);margin-bottom:.8rem;text-align:center}
+#how-canvas{width:100%;max-width:300px;aspect-ratio:1;display:block;margin:0 auto}
+#how-letter-track{display:flex;gap:6px;justify-content:center;margin-top:.8rem;flex-wrap:wrap}
+.letter-chip{font-family:var(--mono);font-size:.7rem;padding:3px 7px;background:var(--grey1);color:var(--grey4);transition:all .2s}
+.letter-chip.active{background:var(--black);color:var(--white)}
+
+/* ── Grid section ───────────────────────────────────────────────────────────── */
+.grid-explain{display:grid;grid-template-columns:auto 1fr;gap:4rem;align-items:center}
+#grid-canvas{width:280px;height:280px;flex-shrink:0}
+.grid-text{display:flex;flex-direction:column;gap:1.2rem}
+
+/* ── Interactive encoder ────────────────────────────────────────────────────── */
+.encoder-wrap{margin-top:3rem}
+.encoder-input-row{display:flex;gap:0;border:1.5px solid var(--black)}
+#enc-input{
+  flex:1;padding:1rem 1.2rem;font-family:var(--mono);font-size:1rem;
+  border:none;outline:none;background:var(--white);color:var(--black);
+}
+#enc-btn{
+  padding:1rem 1.6rem;background:var(--black);color:var(--white);
+  font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;
+  text-transform:uppercase;border:none;cursor:pointer;transition:background .15s;
+  white-space:nowrap;
+}
+#enc-btn:hover{background:var(--blue)}
+#enc-glyph-row{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;
+  padding:1.5rem;background:var(--grey1);margin-top:1.5px;
+  min-height:100px;
+}
+.enc-word{display:flex;flex-direction:column;align-items:center;gap:4px}
+.enc-word canvas{display:block}
+.enc-lbl{font-family:var(--mono);font-size:8px;color:var(--grey3)}
+.enc-punct{font-size:1.2rem;align-self:center;color:var(--black)}
+.enc-stats{display:flex;gap:2.5rem;margin-top:1rem;padding:.8rem 0;border-top:1px solid var(--grey2)}
+.enc-stat-val{font-family:var(--mono);font-size:1.1rem;font-weight:700}
+.enc-stat-val.hi{color:var(--blue)}
+.enc-toggles{display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.enc-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-size:.72rem;font-family:var(--mono);letter-spacing:.06em;color:var(--grey4)}
+.enc-toggle input{width:14px;height:14px;cursor:pointer;accent-color:var(--black)}
+.enc-stat-lbl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);margin-top:2px;font-family:var(--mono)}
+
+/* ── Compression section ───────────────────────────────────────────────────── */
+.compression-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;margin-top:3rem}
+.comp-col{}
+.comp-title{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.2rem;padding-bottom:.6rem;border-bottom:1px solid var(--grey2)}
+.comp-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--grey1)}
+.comp-row:last-child{border-bottom:none}
+.comp-name{font-size:.9rem;color:var(--grey4)}
+.comp-bar-wrap{display:flex;align-items:center;gap:.8rem;flex:1;margin:0 1rem}
+.comp-bar{height:4px;background:var(--grey2);flex:1;position:relative}
+.comp-bar-fill{position:absolute;left:0;top:0;height:100%;background:var(--grey3);transition:width .8s}
+.comp-bar-fill.lines{background:var(--blue)}
+.comp-val{font-family:var(--mono);font-size:.8rem;min-width:3rem;text-align:right}
+.comp-val.lines{color:var(--blue);font-weight:700}
+
+/* ── Use cases ──────────────────────────────────────────────────────────────── */
+.cases-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:3rem;border:1px solid var(--grey2)}
+.case-item{padding:2rem;border-right:1px solid var(--grey2)}
+.case-item:last-child{border-right:none}
+.case-icon{font-size:1.5rem;margin-bottom:1rem}
+.case-title{font-weight:500;margin-bottom:.6rem}
+.case-desc{font-size:.88rem;line-height:1.65;color:var(--grey4);font-weight:300}
+
+/* ── CTA ────────────────────────────────────────────────────────────────────── */
+#cta{background:var(--grey1);color:var(--black);text-align:center;border-top:1px solid var(--grey2)}
+#cta .t-head{color:var(--black)}
+#cta .t-subhead{color:var(--grey3);margin-top:1rem}
+.cta-actions{display:flex;gap:1rem;justify-content:center;margin-top:2.5rem;flex-wrap:wrap}
+.btn-white{background:var(--black);color:var(--white)}
+.btn-white:hover{background:var(--blue);color:var(--white)}
+.btn-outline-white{background:transparent;color:var(--black);border:1.5px solid var(--black)}
+.btn-outline-white:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ── Footer ─────────────────────────────────────────────────────────────────── */
+footer{padding:2rem;border-top:1px solid var(--grey2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;background:var(--white);color:var(--black)}
+.footer-logo{font-family:var(--mono);font-weight:700;font-size:.9rem;letter-spacing:.1em}
+.footer-note{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;color:var(--grey3)}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media(max-width:768px){
+  .hero-inner{grid-template-columns:1fr}
+  #hero-canvas-wrap{order:-1}
+  .how-grid{grid-template-columns:1fr}
+  .how-demo{position:static}
+  .grid-explain{grid-template-columns:1fr}
+  #grid-canvas{width:100%;height:auto;aspect-ratio:1}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-item:nth-child(2){border-right:none}
+  .compression-grid{grid-template-columns:1fr}
+  .cases-grid{grid-template-columns:1fr}
+  .case-item{border-right:none;border-bottom:1px solid var(--grey2)}
+  .case-item:last-child{border-bottom:none}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">LINES</div>
+  <div class="nav-links">
+    <a href="#how-it-works">How it works</a>
+    <a href="#encoder">Try it</a>
+    <a href="#compression">Data</a>
+    <a href="#use-cases">Applications</a>
+    <a href="#learn">Decode</a>
+    <a href="#specification">Spec</a>
+  </div>
+  <a href="#learn" class="btn btn-primary nav-cta">Learn to decode</a>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-eyebrow">Logographic Integrated Notation Expression System</div>
+        <div style="font-family:var(--mono);font-size:3rem;font-weight:700;letter-spacing:.18em;line-height:1;margin-bottom:.5rem">LINES</div>
+        <h1 class="t-display">One mark.<br>One word.</h1>
+        <p class="hero-desc">LINES is a geometric writing system where every word — regardless of length — is encoded as a single stroke across a 5×5 grid. Compact, learnable, and machine-efficient.</p>
+        <div class="hero-actions">
+          <a href="#encoder" class="btn btn-primary">Try the encoder</a>
+          <a href="#how-it-works" class="btn btn-secondary">How it works</a>
+        </div>
+      </div>
+      <div id="hero-canvas-wrap">
+        <canvas id="hero-canvas"></canvas>
+        <div class="hero-caption t-label">Five letters. One stroke. Traced live.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats strip -->
+<div id="stats-strip">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div><span class="stat-n">1</span></div>
+        <div class="stat-l">stroke encodes any word</div>
+      </div>
+      <div class="stat-item">
+        <div><span class="stat-n">25</span></div>
+        <div class="stat-l">positions — the only reference you need</div>
+      </div>
+      <div class="stat-item">
+        <div><span class="stat-n">∞</span></div>
+        <div class="stat-l">vocabulary — no dictionary required</div>
+      </div>
+      <div class="stat-item">
+        <div><span class="stat-n">0</span></div>
+        <div class="stat-l">software needed to decode</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- How it works -->
+<section id="how-it-works">
+  <div class="container">
+    <div class="how-grid">
+      <div class="how-steps">
+        <div style="margin-bottom:1rem">
+          <div class="t-label" style="margin-bottom:.8rem">The system</div>
+          <h2 class="t-head">Every word.<br>One stroke.</h2>
+        </div>
+        <p class="t-body" style="margin-bottom:2rem">Twenty-five cells. Twenty-five letters. Each word becomes a single path across the grid — starting at the first letter, passing through every letter in sequence, ending at the last. Any word. Any length. One mark.</p>
+
+        <div class="how-step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <div class="step-title">Map letters to positions</div>
+            <div class="step-desc">A–Z fill 25 cells in reading order. Q shares X's position. Every letter has one fixed coordinate — no ambiguity, no exceptions.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <div class="step-title">Trace the path</div>
+            <div class="step-desc">Draw a line connecting each letter's position in order. A filled dot sits on the first letter. An arrowhead is centred on the last.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <div class="step-title">Mark double letters</div>
+            <div class="step-desc">Consecutive duplicate letters collapse to one node. A small white circle marks that node — distinguishing "to" from "too," "of" from "off," with no ambiguity.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <div class="step-title">Read it back</div>
+            <div class="step-desc">Follow the path node by node. Each position maps back to a letter. With practice the entire shape reads as a single unit — the way a skilled reader sees a whole word, not its letters.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="how-demo">
+        <div id="how-word-display" class="t-label">tap a word — watch it encode</div>
+        <canvas id="how-canvas"></canvas>
+        <div id="how-letter-track"></div>
+        <div id="how-node-note" style="font-size:.72rem;color:var(--grey3);text-align:center;margin-top:.5rem;font-family:var(--mono);min-height:1.2em;letter-spacing:.04em"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:1.5rem;justify-content:center">
+          <div class="how-word-chip letter-chip" data-word="the" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">the</div>
+<div class="how-word-chip letter-chip" data-word="language" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">language</div>
+<div class="how-word-chip letter-chip" data-word="together" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">together</div>
+<div class="how-word-chip letter-chip" data-word="possible" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">possible</div>
+<div class="how-word-chip letter-chip" data-word="elephant" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">elephant</div>
+<div class="how-word-chip letter-chip" data-word="different" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">different</div>
+<div class="how-word-chip letter-chip" data-word="beautiful" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">beautiful</div>
+<div class="how-word-chip letter-chip" data-word="understand" style="cursor:pointer;user-select:none" onmouseenter="(function(el){showHowWord(el.dataset.word)})(this)" onclick="(function(el){showHowWord(el.dataset.word)})(this)">understand</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The grid -->
+<section id="the-grid">
+  <div class="container">
+    <div class="t-label" style="margin-bottom:.8rem">The reference grid</div>
+    <div class="grid-explain">
+      <canvas id="grid-canvas"></canvas>
+      <div class="grid-text">
+        <h2 class="t-head">The key to everything</h2>
+        <p class="t-body">The 5×5 grid is the only reference a reader needs. Every LINES symbol can be decoded by anyone who has this grid — no software, no internet, no electricity. Print it once and the entire system is recoverable forever.</p>
+        <p class="t-body">This is the fundamental archival advantage over algorithmic compression: a gzip file without a decompressor is permanently unreadable. A LINES document with a printed grid is recoverable by any literate person.</p>
+        <div style="margin-top:1rem;padding:1rem;background:var(--grey1);border-left:3px solid var(--blue)">
+          <div class="t-label" style="margin-bottom:.4rem">Q / X</div>
+          <div style="font-size:.88rem;color:var(--grey4);line-height:1.6">Q is absent from the grid and shares X's position. Any word containing Q is encoded using X's coordinates. Context disambiguates in practice.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Encoder -->
+<section id="encoder">
+  <div class="container--narrow">
+    <div class="t-label" style="margin-bottom:.8rem">Live encoder</div>
+    <h2 class="t-head">Type anything.<br>Watch it encode.</h2>
+    <p class="t-body" style="margin-top:1rem">Enter any text below. Each word is encoded directly from its letters — no dictionary or lookup table required. Any word in any language that uses Latin letters can be encoded instantly.</p>
+    <div class="encoder-wrap">
+      <div class="encoder-input-row">
+        <input id="enc-input" type="text" value="The quick brown fox jumps over the lazy dog." placeholder="Type a sentence…" autocomplete="off" spellcheck="false">
+        <button id="enc-btn">Encode</button>
+      </div>
+      <div class="enc-toggles">
+        <label class="enc-toggle"><input type="checkbox" id="enc-grid"> Grid lines</label>
+        <label class="enc-toggle"><input type="checkbox" id="enc-letters"> Letter labels</label>
+      </div>
+      <div id="enc-glyph-row"></div>
+      <div class="enc-stats">
+        <div>
+          <div class="enc-stat-val" id="e-utf8">—</div>
+          <div class="enc-stat-lbl">UTF-8 bits</div>
+        </div>
+        <div>
+          <div class="enc-stat-val hi" id="e-lines">—</div>
+          <div class="enc-stat-lbl">LINES bits</div>
+        </div>
+        <div>
+          <div class="enc-stat-val hi" id="e-save">—</div>
+          <div class="enc-stat-lbl">Compression</div>
+        </div>
+        <div>
+          <div class="enc-stat-val" id="e-nodes">—</div>
+          <div class="enc-stat-lbl">Avg nodes/word</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Compression -->
+<section id="compression">
+  <div class="container">
+    <div class="t-label" style="margin-bottom:.8rem">Efficiency</div>
+    <h2 class="t-head">Compact by geometry,<br>not by dictionary.</h2>
+    <p class="t-body" style="margin-top:1rem;max-width:600px">Standard compression algorithms treat text as arbitrary bytes and produce unreadable binary. LINES encodes at the word level — each word a single geometric coordinate path — achieving real compression while remaining human-interpretable at every step, with no lookup table required.</p>
+
+    <div class="compression-grid">
+      <div class="comp-col">
+        <div class="comp-title">Bits per average word</div>
+        <div class="comp-row">
+          <div class="comp-name">UTF-8</div>
+          <div class="comp-bar-wrap"><div class="comp-bar"><div class="comp-bar-fill" style="width:100%"></div></div></div>
+          <div class="comp-val">46</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name" style="color:var(--blue);font-weight:500">LINES coordinate path</div>
+          <div class="comp-bar-wrap"><div class="comp-bar"><div class="comp-bar-fill lines" style="width:82%"></div></div></div>
+          <div class="comp-val lines">38</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">gzip</div>
+          <div class="comp-bar-wrap"><div class="comp-bar"><div class="comp-bar-fill" style="width:48%"></div></div></div>
+          <div class="comp-val">~22</div>
+        </div>
+
+      </div>
+
+      <div class="comp-col">
+        <div class="comp-title">Key properties</div>
+        <div class="comp-row">
+          <div class="comp-name">Human readable without software</div>
+          <div class="comp-val" style="color:var(--blue);font-weight:600">LINES ✓</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">Searchable without decompression</div>
+          <div class="comp-val" style="color:var(--blue);font-weight:600">LINES ✓</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">Recoverable from printed key</div>
+          <div class="comp-val" style="color:var(--blue);font-weight:600">LINES ✓</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">Works on arbitrary binary data</div>
+          <div class="comp-val" style="color:var(--grey4)">gzip ✓</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">Zero-dependency decoding</div>
+          <div class="comp-val" style="color:var(--blue);font-weight:600">LINES ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use cases -->
+<section id="use-cases">
+  <div class="container">
+    <div class="t-label" style="margin-bottom:.8rem">Applications</div>
+    <h2 class="t-head">Where LINES fits.</h2>
+    <div class="cases-grid">
+      <div class="case-item">
+        <div class="case-icon">◈</div>
+        <div class="case-title">Long-term archival</div>
+        <div class="case-desc">Documents encoded in LINES are recoverable by any literate person given only a printed 5×5 grid key. No software dependency, no format obsolescence, no decompressor required.</div>
+      </div>
+      <div class="case-item">
+        <div class="case-icon">◎</div>
+        <div class="case-title">Private notation</div>
+        <div class="case-desc">Field notes, journals, and clinical records written in LINES are illegible to untrained readers — not encrypted, but sufficiently obscured for everyday privacy in public spaces.</div>
+      </div>
+      <div class="case-item">
+        <div class="case-icon">◇</div>
+        <div class="case-title">Compact print</div>
+        <div class="case-desc">A LINES glyph occupies the same square regardless of word length. "Uncomfortable" and "it" take identical space. Page density increases dramatically for long-word-heavy text.</div>
+      </div>
+      <div class="case-item">
+        <div class="case-icon">▷</div>
+        <div class="case-title">Rapid handwriting</div>
+        <div class="case-desc">Every word is a single connected stroke. A trained writer produces any word in one continuous pen motion — faster than printing or cursive for words beyond four letters.</div>
+      </div>
+      <div class="case-item">
+        <div class="case-icon">⬡</div>
+        <div class="case-title">Data transmission</div>
+        <div class="case-desc">At 14 bits per common word versus 46 bits in UTF-8, LINES index streams reduce bandwidth by 70% for English text — with no preprocessing overhead beyond a vocabulary lookup.</div>
+      </div>
+      <div class="case-item">
+        <div class="case-icon">△</div>
+        <div class="case-title">Steganography</div>
+        <div class="case-desc">LINES index streams embedded in images or documents are invisible to casual inspection but machine-readable with the vocabulary key — a natural fit for watermarking and covert channels.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Learn to Decode -->
+<section id="learn">
+  <div class="container">
+    <div class="t-label" style="margin-bottom:.8rem">Learn to decode</div>
+    <h2 class="t-head">Train your eye.<br>Read without the grid.</h2>
+    <p class="t-body" style="margin-top:1rem;max-width:600px;margin-bottom:2.5rem">Progress through seven levels. Start with letters and grid visible. End with full sentences and nothing but the stroke. Type what you see — correct answers advance you through the stages.</p>
+
+    <div id="learn-wrap" style="max-width:600px;margin:0 auto">
+
+      <!-- stage info + timer -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.2rem;gap:1rem">
+        <div>
+          <div id="learn-level-label" style="font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-family:var(--mono);font-weight:500">Level 1 — All letters visible</div>
+          <div id="learn-sub-label" style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);font-family:var(--mono);margin-top:3px">Short words</div>
+        </div>
+        <div style="text-align:right">
+          <div id="learn-timer" style="font-family:var(--mono);font-size:1.6rem;font-weight:700;line-height:1">00:00.0</div>
+          <button id="learn-reset-btn" style="font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);background:none;border:1px solid var(--grey2);padding:2px 8px;cursor:pointer;margin-top:4px">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- pips -->
+      <div style="margin-bottom:1.4rem">
+        <div style="display:flex;gap:4px;align-items:center;margin-bottom:5px">
+          <span style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);font-family:var(--mono);width:40px">Level</span>
+          <div class="learn-level-pip" style="flex:1;height:5px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-level-pip" style="flex:1;height:5px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-level-pip" style="flex:1;height:5px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-level-pip" style="flex:1;height:5px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-level-pip" style="flex:1;height:5px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-level-pip" style="flex:1;height:5px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-level-pip" style="flex:1;height:5px;border-radius:2px;background:var(--grey2)"></div>
+        </div>
+        <div id="learn-sub-bar-row" style="display:flex;gap:4px;align-items:center;margin-bottom:8px">
+          <span style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);font-family:var(--mono);width:40px">Word</span>
+          <div class="learn-sub-pip" style="flex:1;height:3px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-sub-pip" style="flex:1;height:3px;border-radius:2px;background:var(--grey2)"></div>
+          <div class="learn-sub-pip" style="flex:1;height:3px;border-radius:2px;background:var(--grey2)"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="learn-progress-count" style="font-family:var(--mono);font-size:.85rem;color:var(--grey3);min-width:52px">0 / 5</span>
+          <div style="flex:1;height:3px;background:var(--grey2);border-radius:2px;overflow:hidden">
+            <div id="learn-progress-fill" style="height:100%;background:var(--black);border-radius:2px;transition:width .3s;width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- glyph display -->
+      <div id="learn-glyph-card" style="background:var(--grey1);border:1px solid var(--grey2);border-radius:12px;padding:2rem;margin-bottom:1.2rem;display:flex;justify-content:center;align-items:center;min-height:180px;gap:10px;flex-wrap:wrap"></div>
+
+      <!-- input -->
+      <input id="learn-word-input" type="text" placeholder="decode and type…"
+        autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off"
+        style="width:100%;font-family:var(--mono);font-size:1.05rem;padding:11px 16px;border-radius:8px;border:1.5px solid var(--grey2);background:var(--white);color:var(--black);text-align:center;outline:none;transition:border-color .15s;caret-color:var(--blue)">
+      <div id="learn-feedback" style="font-family:var(--mono);font-size:.8rem;color:var(--grey3);min-height:1.4em;text-align:center;margin-top:.5rem"></div>
+
+    </div><!-- #learn-wrap -->
+
+    <!-- stage complete overlay (inline, not fixed) -->
+    <div id="learn-overlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;gap:1rem;text-align:center;z-index:200;padding:2rem">
+      <div id="learn-overlay-icon" style="font-size:3rem;line-height:1">◈</div>
+      <div id="learn-overlay-title" style="font-family:var(--mono);font-size:2rem;font-weight:700;letter-spacing:.1em">STAGE CLEAR</div>
+      <div id="learn-overlay-sub" style="font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-family:var(--mono)">Next stage unlocked</div>
+      <div id="learn-overlay-msg" style="font-size:.9rem;color:var(--grey4);max-width:340px;line-height:1.6"></div>
+      <div id="learn-overlay-stats" style="display:none;background:var(--grey1);border:1px solid var(--grey2);border-radius:8px;padding:1rem 2rem;gap:2rem;flex-direction:row">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div id="learn-stat-time" style="font-family:var(--mono);font-size:1.3rem;font-weight:700">—</div>
+          <div style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);font-family:var(--mono)">Total time</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div id="learn-stat-stages" style="font-family:var(--mono);font-size:1.3rem;font-weight:700">13</div>
+          <div style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);font-family:var(--mono)">Stages</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div id="learn-stat-wpm" style="font-family:var(--mono);font-size:1.3rem;font-weight:700">—</div>
+          <div style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey3);font-family:var(--mono)">Avg WPM</div>
+        </div>
+      </div>
+      <button id="learn-overlay-btn" style="margin-top:.5rem;padding:11px 32px;background:var(--black);color:var(--white);border:none;border-radius:6px;font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer">CONTINUE</button>
+    </div>
+
+    <canvas id="learn-particle-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:199"></canvas>
+
+  </div>
+</section>
+
+
+<!-- Specification -->
+<section id="specification">
+  <div class="container">
+    <div class="t-label" style="margin-bottom:.8rem">System specification</div>
+    <h2 class="t-head">LINES 1.1<br>Formal rules.</h2>
+
+    <div style="max-width:760px;margin-top:2.5rem;display:flex;flex-direction:column;gap:3rem">
+
+      <!-- Rule 1 -->
+      <div>
+        <div class="spec-rule-num t-label">Rule 1 — The Grid</div>
+        <p class="t-body" style="margin-top:.6rem">A 5×5 grid holds 25 cells, labelled A–Z in reading order. Q is absent and shares X's position at row 4, column 2. Each cell has a fixed coordinate: row 0–4 (top to bottom), column 0–4 (left to right).</p>
+        <div class="spec-grid-display" style="margin-top:1rem;display:inline-block;border:1px solid var(--grey2);padding:.5rem;background:var(--grey1)">
+          <canvas id="spec-grid-canvas" style="display:block;width:180px;height:180px"></canvas>
+        </div>
+      </div>
+
+      <!-- Rule 2 -->
+      <div>
+        <div class="spec-rule-num t-label">Rule 2 — Encoding a Word</div>
+        <p class="t-body" style="margin-top:.6rem">Each word becomes a single connected path. Map each letter to its grid node, connect the nodes in sequence, and mark start and end.</p>
+        <div style="margin-top:1rem;display:flex;flex-direction:column;gap:.6rem">
+          <div class="spec-step"><span class="spec-step-n">01</span>Map each letter to its grid coordinate. Consecutive duplicate letters collapse to one node.</div>
+          <div class="spec-step"><span class="spec-step-n">02</span>Draw a line connecting each node in order.</div>
+          <div class="spec-step"><span class="spec-step-n">03</span>Place a filled dot at the first letter's node.</div>
+          <div class="spec-step"><span class="spec-step-n">04</span>Place an arrowhead with its base midpoint centred on the final letter's node. The tip extends beyond the node.</div>
+          <div class="spec-step"><span class="spec-step-n">05</span>If any letter repeats consecutively, place a small open circle directly on that letter's node.</div>
+        </div>
+      </div>
+
+      <!-- Rule 3 -->
+      <div>
+        <div class="spec-rule-num t-label">Rule 3 — Reading a Symbol</div>
+        <p class="t-body" style="margin-top:.6rem">Locate the filled dot (first letter). Follow the line through each node. The arrowhead's base midpoint marks the last letter. A white circle at any node indicates a doubled letter there.</p>
+      </div>
+
+      <!-- Rule 4 -->
+      <div>
+        <div class="spec-rule-num t-label">Rule 4 — Sentences</div>
+        <p class="t-body" style="margin-top:.6rem">Words are placed left to right with consistent spacing. Punctuation is inserted inline at the same height as the symbols. Word boundaries are implied by the discrete marks — no spaces are encoded.</p>
+      </div>
+
+      <!-- Rule 5 -->
+      <div>
+        <div class="spec-rule-num t-label">Rule 5 — Disambiguation</div>
+        <div style="margin-top:.8rem;display:flex;flex-direction:column;gap:.5rem">
+          <div class="spec-disambig"><span class="spec-disambig-term">Double letters</span> collapse to one node and receive a white dot marker. "LETTER" has two T's: the T node appears once, marked.</div>
+          <div class="spec-disambig"><span class="spec-disambig-term">Q</span> always uses X's node. Context disambiguates.</div>
+          <div class="spec-disambig"><span class="spec-disambig-term">Single-letter words</span> are a filled dot only — no line, no arrowhead.</div>
+          <div class="spec-disambig"><span class="spec-disambig-term">Two letters at the same node</span> (e.g. "XX") become a single-node word with a white dot.</div>
+        </div>
+      </div>
+
+      <!-- Rule 6 -->
+      <div>
+        <div class="spec-rule-num t-label">Rule 6 — Proportionality</div>
+        <p class="t-body" style="margin-top:.6rem">All elements scale with SIZE (canvas pixel width). PAD = SIZE × 0.06. CELL = (SIZE − 2×PAD) ÷ 5.</p>
+        <div style="margin-top:1rem;border:1px solid var(--grey2);overflow:hidden">
+          <table style="width:100%;border-collapse:collapse;font-size:.82rem;font-family:var(--mono)">
+            <thead>
+              <tr style="background:var(--grey1);border-bottom:1px solid var(--grey2)">
+                <th style="padding:.5rem .8rem;text-align:left;font-weight:500;letter-spacing:.06em">Element</th>
+                <th style="padding:.5rem .8rem;text-align:left;font-weight:500;letter-spacing:.06em">Formula</th>
+                <th style="padding:.5rem .8rem;text-align:left;font-weight:500;letter-spacing:.06em;color:var(--grey3)">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--grey1)"><td style="padding:.45rem .8rem">Line weight (LW)</td><td style="padding:.45rem .8rem;color:var(--blue)">SIZE × 0.05</td><td style="padding:.45rem .8rem;color:var(--grey3)">Scales with canvas</td></tr>
+              <tr style="border-bottom:1px solid var(--grey1)"><td style="padding:.45rem .8rem">Arrowhead length (AL)</td><td style="padding:.45rem .8rem;color:var(--blue)">SIZE × 0.18</td><td style="padding:.45rem .8rem;color:var(--grey3)">Tip-to-base distance</td></tr>
+              <tr style="border-bottom:1px solid var(--grey1)"><td style="padding:.45rem .8rem">Start dot radius</td><td style="padding:.45rem .8rem;color:var(--blue)">SIZE × 0.09</td><td style="padding:.45rem .8rem;color:var(--grey3)">Filled circle at first node</td></tr>
+              <tr style="border-bottom:1px solid var(--grey1)"><td style="padding:.45rem .8rem">White dot radius</td><td style="padding:.45rem .8rem;color:var(--blue)">SIZE × 0.08</td><td style="padding:.45rem .8rem;color:var(--grey3)">Open circle at doubled node</td></tr>
+              <tr><td style="padding:.45rem .8rem">White dot stroke</td><td style="padding:.45rem .8rem;color:var(--blue)">LW × 0.4</td><td style="padding:.45rem .8rem;color:var(--grey3)">Outline of white dot</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="t-body" style="margin-top:.8rem;font-size:.85rem">The arrowhead base midpoint sits on the final node. The line terminates AL × 0.309 before the node. The constant 0.309 = cos(36°) − 0.5, from the arrowhead half-angle of 36°.</p>
+      </div>
+
+      <!-- Rule 7 -->
+      <div>
+        <div class="spec-rule-num t-label">Rule 7 — What LINES Is Not</div>
+        <div style="margin-top:.8rem;display:flex;flex-direction:column;gap:.4rem">
+          <div class="spec-disambig"><span class="spec-disambig-term">Not a cipher.</span> The encoding rule is public and derivable from the grid alone.</div>
+          <div class="spec-disambig"><span class="spec-disambig-term">Not phonetic.</span> Letters map to positions; pronunciation is not encoded.</div>
+          <div class="spec-disambig"><span class="spec-disambig-term">Not a lookup system.</span> Any word is encodable from the grid with no dictionary.</div>
+        </div>
+      </div>
+
+      <!-- Download -->
+      <div style="padding-top:1rem;border-top:1px solid var(--grey2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+        <div>
+          <div class="spec-rule-num t-label" style="margin-bottom:.3rem">Full specification</div>
+          <p style="font-size:.85rem;color:var(--grey4)">Complete rules, geometry derivations, and annotated reference code.</p>
+        </div>
+        <a href="lines_specification.md" download="LINES_1.1_Specification.md" class="btn btn-primary" style="white-space:nowrap">↓ Download spec</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-logo">LINES 1.1</div>
+  <div class="footer-note">Logographic Integrated Notation Expression System</div>
+</footer>
+
+
+<script>
+(function(){
+// ── Polybius core ─────────────────────────────────────────────────────────────
+const LAYOUT=[['A','B','C','D','E'],['F','G','H','I','J'],['K','L','M','N','O'],['P','R','S','T','U'],['V','W','X','Y','Z']];
+const POS={};
+for(let r=0;r<5;r++)for(let c=0;c<5;c++)POS[LAYOUT[r][c]]={r,c};
+POS['Q']=POS['X'];
+
+function wordNodes(word){
+  const upper=word.toUpperCase(),nodes=[];
+  for(const ch of upper){const p=POS[ch];if(!p)continue;const pr=[p.r,p.c];if(!nodes.length||nodes[nodes.length-1][0]!==pr[0]||nodes[nodes.length-1][1]!==pr[1])nodes.push(pr);}
+  return nodes;
+}
+function wordDoubles(word){
+  const upper=word.toUpperCase(),d=new Set();
+  for(let i=0;i<upper.length-1;i++)if(upper[i]===upper[i+1]&&POS[upper[i]])d.add(upper[i]);
+  return[...d].map(ch=>[POS[ch].r,POS[ch].c]);
+}
+
+
+
+function encodeWord(word){
+  const lw=word.toLowerCase().replace(/[^a-z]/g,'');
+  if(!lw)return null;
+  const nodes=wordNodes(lw),doubles=wordDoubles(lw);
+  let bits='';
+  for(const[r,c]of nodes)bits+=r.toString(2).padStart(3,'0')+c.toString(2).padStart(3,'0');
+  return{bits,nodes,doubles};
+}
+// ── Draw glyph ────────────────────────────────────────────────────────────────
+function drawGlyph(canvas,nodes,doubles,size,opts){
+  opts=opts||{};
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=size*dpr;canvas.height=size*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,size,size);
+  const PAD=opts.pad!=null?opts.pad:3,CELL=(size-PAD*2)/5,ox=PAD,oy=PAD;
+
+  if(opts.showGrid){
+    const ga=opts.gridAlpha!=null?opts.gridAlpha:1;
+    if(ga>0){
+      ctx.save();ctx.globalAlpha=ga;ctx.strokeStyle='#e0e0e0';ctx.lineWidth=.5;
+      for(let i=0;i<=5;i++){
+        ctx.beginPath();ctx.moveTo(ox+i*CELL,oy);ctx.lineTo(ox+i*CELL,oy+size-PAD*2);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(ox,oy+i*CELL);ctx.lineTo(ox+size-PAD*2,oy+i*CELL);ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+  if(opts.showLetters){
+    const la=opts.letterAlpha!=null?opts.letterAlpha:1;
+    if(la>0){
+      ctx.save();ctx.globalAlpha=la;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#ccc';
+      for(let r=0;r<5;r++)for(let c=0;c<5;c++){
+        const lbl=(r===4&&c===2)?'X/Q':LAYOUT[r][c];
+        ctx.font=lbl.length>1?`${Math.max(CELL*.32,4)}px IBM Plex Mono,monospace`:`${Math.max(CELL*.46,5)}px IBM Plex Mono,monospace`;
+        ctx.fillText(lbl,ox+c*CELL+CELL/2,oy+r*CELL+CELL/2);
+      }
+      ctx.restore();
+    }
+  }
+
+  // box
+  ctx.save();ctx.strokeStyle='#ccc';ctx.lineWidth=.8;
+  ctx.strokeRect(ox,oy,size-PAD*2,size-PAD*2);ctx.restore();
+
+  if(!nodes||!nodes.length)return;
+  const pts=nodes.map(([r,c])=>({x:ox+c*CELL+CELL/2,y:oy+r*CELL+CELL/2}));
+  const INK=opts.ink||'#000';
+  ctx.strokeStyle=INK;ctx.fillStyle=INK;
+  const LW=size*.05;ctx.lineWidth=LW;ctx.lineCap='butt';ctx.lineJoin='round';
+
+  if(pts.length===1){ctx.beginPath();ctx.arc(pts[0].x,pts[0].y,size*.08,0,Math.PI*2);ctx.fill();return;}
+
+  const AL=size*0.18,AA=Math.PI/5;
+  const last=pts[pts.length-1],prev=pts[pts.length-2];
+  const ang=Math.atan2(last.y-prev.y,last.x-prev.x);
+  const base={x:last.x-AL*0.309*Math.cos(ang),y:last.y-AL*0.309*Math.sin(ang)};
+
+  if(opts.partial!=null){
+    const end=Math.min(opts.partial,pts.length-1);
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+    if(opts.partial>=pts.length-1){
+      for(let i=1;i<pts.length-1;i++)ctx.lineTo(pts[i].x,pts[i].y);
+      const base2={x:last.x-AL*0.309*Math.cos(ang),y:last.y-AL*0.309*Math.sin(ang)};
+      ctx.lineTo(base2.x,base2.y);
+    } else {
+      for(let i=1;i<=end;i++)ctx.lineTo(pts[i].x,pts[i].y);
+    }
+    ctx.stroke();
+    ctx.beginPath();ctx.arc(pts[0].x,pts[0].y,size*0.09,0,Math.PI*2);ctx.fill();
+    if(opts.partial>=pts.length-1){
+      const tipX=last.x+AL*0.5*Math.cos(ang),tipY=last.y+AL*0.5*Math.sin(ang);
+      ctx.beginPath();ctx.moveTo(tipX,tipY);
+      ctx.lineTo(tipX-AL*Math.cos(ang-AA),tipY-AL*Math.sin(ang-AA));
+      ctx.lineTo(tipX-AL*Math.cos(ang+AA),tipY-AL*Math.sin(ang+AA));
+      ctx.closePath();ctx.fill();
+    }
+    return;
+  }
+
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length-1;i++)ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.lineTo(base.x,base.y);ctx.stroke();
+
+  const tipX=last.x+AL*0.5*Math.cos(ang),tipY=last.y+AL*0.5*Math.sin(ang);
+  ctx.beginPath();ctx.moveTo(tipX,tipY);
+  ctx.lineTo(tipX-AL*Math.cos(ang-AA),tipY-AL*Math.sin(ang-AA));
+  ctx.lineTo(tipX-AL*Math.cos(ang+AA),tipY-AL*Math.sin(ang+AA));
+  ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(pts[0].x,pts[0].y,size*0.09,0,Math.PI*2);ctx.fill();
+
+  // Double-letter dots: ON the node of the doubled letter
+  for(const[dr,dc]of(doubles||[])){
+    for(let i=0;i<(nodes||[]).length;i++){
+      if(nodes[i][0]===dr&&nodes[i][1]===dc){
+        ctx.save();ctx.fillStyle='#fff';ctx.strokeStyle=INK;ctx.lineWidth=(LW||size*.07)*.5;
+        ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,size*0.08,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();break;
+      }
+    }
+  }
+}
+
+// ── Hero animation ────────────────────────────────────────────────────────────
+const heroCanvas=document.getElementById('hero-canvas');
+function resizeHero(){
+  const w=heroCanvas.parentElement.offsetWidth;
+  const s=Math.min(w,440);
+  heroCanvas.style.width=s+'px';heroCanvas.style.height=s+'px';
+}
+resizeHero();
+window.addEventListener('resize',resizeHero);
+
+const heroWord='lines';
+const heroNodes=wordNodes(heroWord);
+const heroDoubles=wordDoubles(heroWord);
+let heroPartial=0,heroAnimating=true,heroLetterAlpha=1,heroGridAlpha=1;
+
+function animHero(){
+  if(!heroAnimating)return;
+  const size=parseInt(heroCanvas.style.width)||440;
+  drawGlyph(heroCanvas,heroNodes,heroDoubles,size,{
+    showGrid:true,showLetters:true,
+    partial:heroPartial,pad:20,ink:'#1a1aff',
+    letterAlpha:heroLetterAlpha,gridAlpha:heroGridAlpha
+  });
+  if(heroPartial<heroNodes.length){
+    setTimeout(()=>{heroPartial++;animHero();},280);
+  } else {
+    // Pause with full glyph visible, then fade letters, then fade grid, then restart
+    setTimeout(()=>fadeOutLetters(),900);
+  }
+}
+
+function fadeOutLetters(){
+  if(heroLetterAlpha>0){
+    heroLetterAlpha=Math.max(0,heroLetterAlpha-0.06);
+    const size=parseInt(heroCanvas.style.width)||440;
+    drawGlyph(heroCanvas,heroNodes,heroDoubles,size,{
+      showGrid:true,showLetters:true,
+      partial:heroPartial,pad:20,ink:'#1a1aff',
+      letterAlpha:heroLetterAlpha,gridAlpha:heroGridAlpha
+    });
+    requestAnimationFrame(fadeOutLetters);
+  } else {
+    setTimeout(()=>fadeOutGrid(),400);
+  }
+}
+
+function fadeOutGrid(){
+  if(heroGridAlpha>0){
+    heroGridAlpha=Math.max(0,heroGridAlpha-0.05);
+    const size=parseInt(heroCanvas.style.width)||440;
+    drawGlyph(heroCanvas,heroNodes,heroDoubles,size,{
+      showGrid:true,showLetters:false,
+      partial:heroPartial,pad:20,ink:'#1a1aff',
+      letterAlpha:0,gridAlpha:heroGridAlpha
+    });
+    requestAnimationFrame(fadeOutGrid);
+  } else {
+    // Hold bare glyph briefly then restart
+    setTimeout(()=>{
+      heroPartial=0;heroLetterAlpha=1;heroGridAlpha=1;
+      animHero();
+    },1200);
+  }
+}
+setTimeout(animHero,600);
+
+// ── Reference grid ────────────────────────────────────────────────────────────
+const gridCanvas=document.getElementById('grid-canvas');
+function drawRefGrid(){
+  const size=gridCanvas.offsetWidth||280;
+  const dpr=window.devicePixelRatio||1;
+  gridCanvas.width=size*dpr;gridCanvas.height=size*dpr;
+  const ctx=gridCanvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,size,size);
+  const PAD=12,CELL=(size-PAD*2)/5;
+  ctx.strokeStyle='#e0e0e0';ctx.lineWidth=.8;
+  for(let i=0;i<=5;i++){
+    ctx.beginPath();ctx.moveTo(PAD+i*CELL,PAD);ctx.lineTo(PAD+i*CELL,PAD+size-PAD*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD,PAD+i*CELL);ctx.lineTo(PAD+size-PAD*2,PAD+i*CELL);ctx.stroke();
+  }
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let r=0;r<5;r++)for(let c=0;c<5;c++){
+    const lbl=(r===4&&c===2)?'X/Q':LAYOUT[r][c];
+    const x=PAD+c*CELL+CELL/2,y=PAD+r*CELL+CELL/2;
+    const isXQ=lbl==='X/Q';
+    ctx.fillStyle=isXQ?'#1a1aff':'#000';
+    ctx.font=isXQ?`bold ${CELL*.36}px IBM Plex Mono,monospace`:`bold ${CELL*.46}px IBM Plex Mono,monospace`;
+    ctx.fillText(lbl,x,y);
+    if(isXQ){ctx.strokeStyle='#1a1aff';ctx.lineWidth=.5;ctx.strokeRect(PAD+c*CELL+2,PAD+r*CELL+2,CELL-4,CELL-4);}
+  }
+}
+drawRefGrid();
+window.addEventListener('resize',drawRefGrid);
+
+// ── How it works — word chips ─────────────────────────────────────────────────
+const howWords=['the','language','together','possible','elephant','different','beautiful','understand'];
+const howTrack=document.getElementById('how-letter-track');
+const howDisplay=document.getElementById('how-word-display');
+const howCanvas=document.getElementById('how-canvas');
+howCanvas.style.width='260px';howCanvas.style.height='260px';
+
+function showHowWord(word){
+  howDisplay.textContent=word;
+  const nodes=wordNodes(word);
+  const doubles=wordDoubles(word);
+  drawGlyph(howCanvas,nodes,doubles,260,{showGrid:true,showLetters:true,pad:4});
+  howTrack.innerHTML='';
+  for(const ch of word.toUpperCase()){
+    const chip=document.createElement('div');chip.className='letter-chip';chip.textContent=ch;howTrack.appendChild(chip);
+  }
+  // node note
+  const noteEl=document.getElementById('how-node-note');
+  if(noteEl){
+    const collapsed=nodes.length;
+    const raw=word.replace(/[^a-zA-Z]/g,'').length;
+    noteEl.textContent=raw===collapsed
+      ? `${collapsed} nodes — ${collapsed} unique positions`
+      : `${raw} letters → ${collapsed} nodes (${raw-collapsed} collapsed)`;
+  }
+  // animate chips
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i<howTrack.children.length){howTrack.children[i].classList.add('active');i++;}
+    else clearInterval(iv);
+  },120);
+}
+
+window.showHowWord = showHowWord;
+
+// Insert word chips
+const chipContainer=document.querySelector('[data-chips]');
+const allChipBtns=document.querySelectorAll('.how-word-chip');
+allChipBtns.forEach(btn=>{
+  btn.addEventListener('mouseenter',()=>showHowWord(btn.dataset.word));
+  btn.addEventListener('click',()=>showHowWord(btn.dataset.word));
+});
+showHowWord('language');
+
+// ── Encoder ───────────────────────────────────────────────────────────────────
+const encInput=document.getElementById('enc-input');
+const encGlyphRow=document.getElementById('enc-glyph-row');
+
+function tokenise(text){
+  const tokens=[];
+  const re=/([a-zA-Z'-]+)|([^\w\s])/g;let m;
+  while((m=re.exec(text))!==null){
+    if(m[1])tokens.push({type:'word',value:m[1]});
+    else if(m[2])tokens.push({type:'punct',value:m[2]});
+  }
+  return tokens;
+}
+
+function encodeWordCoord(word){
+  const lw=word.toLowerCase().replace(/[^a-z]/g,'');
+  if(!lw)return null;
+  const nodes=wordNodes(lw),doubles=wordDoubles(lw);
+  // 3 bits row + 3 bits col per node
+  let bits='';
+  for(const[r,c]of nodes)bits+=r.toString(2).padStart(3,'0')+c.toString(2).padStart(3,'0');
+  return{bits,nodes,doubles};
+}
+
+function runEncoder(){
+  const text=encInput.value;
+  if(!text.trim()){encGlyphRow.innerHTML='';return;}
+  const showGrid=document.getElementById('enc-grid').checked;
+  const showLetters=document.getElementById('enc-letters').checked;
+  const tokens=tokenise(text);
+  const encoded=tokens.filter(t=>t.type==='word').map(t=>({t,enc:encodeWord(t.value)}));
+  const utf8=text.length*8;
+  const linesBits=encoded.reduce((s,{enc})=>s+(enc?enc.bits.length:0),0);
+  const total=encoded.length;
+  const totalNodes=encoded.reduce((s,{enc})=>s+(enc?enc.nodes.length:0),0);
+  document.getElementById('e-utf8').textContent=utf8.toLocaleString();
+  document.getElementById('e-lines').textContent=linesBits.toLocaleString();
+  document.getElementById('e-save').textContent=linesBits?Math.round((1-linesBits/utf8)*100)+'%':'—';
+  document.getElementById('e-nodes').textContent=total?(totalNodes/total).toFixed(1):'—';
+  encGlyphRow.innerHTML='';
+
+  // Size glyphs proportionally: more words = smaller glyphs, fewer = larger
+  // Available width minus gaps, clamped between 32 and 200px
+  const availW = encGlyphRow.offsetWidth || 600;
+  const wordCount = Math.max(total, 1);
+  const rawSize = Math.floor((availW - wordCount * 6) / wordCount);
+  const SIZE = Math.min(200, Math.max(32, rawSize));
+
+  // Centre if few words (flex-wrap:wrap already handles layout;
+  // justify-content:center when words would not fill the row)
+  const totalSlotW = wordCount * (SIZE + 6);
+  // Centre only for very short input (≤3 words); left-align otherwise
+  encGlyphRow.style.justifyContent = (wordCount <= 3 && totalSlotW < availW) ? 'center' : 'flex-start';
+
+  let ei=0;
+  for(const tok of tokens){
+    if(tok.type==='punct'){
+      const s=document.createElement('div');s.className='enc-punct';
+      s.style.fontSize=Math.max(12,SIZE*0.5)+'px';
+      s.textContent=tok.value;encGlyphRow.appendChild(s);
+    } else {
+      const enc=encoded[ei]?.enc;ei++;
+      if(!enc)continue;
+      const div=document.createElement('div');div.className='enc-word';
+      const cv=document.createElement('canvas');cv.style.width=SIZE+'px';cv.style.height=SIZE+'px';
+      const lbl=document.createElement('div');lbl.className='enc-lbl';
+      // hide label when glyphs are very small
+      lbl.style.display=SIZE<48?'none':'block';
+      lbl.textContent=tok.value.toLowerCase().slice(0,9);
+      div.appendChild(cv);div.appendChild(lbl);encGlyphRow.appendChild(div);
+      drawGlyph(cv,enc.nodes,enc.doubles,SIZE,{showGrid,showLetters});
+    }
+  }
+}encInput.addEventListener('input',runEncoder);
+document.getElementById('enc-grid').addEventListener('change',runEncoder);
+document.getElementById('enc-letters').addEventListener('change',runEncoder);
+document.getElementById('enc-btn').addEventListener('click',runEncoder);
+runEncoder();
+
+// ── Animate compression bars on scroll ───────────────────────────────────────
+const bars=document.querySelectorAll('.comp-bar-fill');
+const widths=[...bars].map(b=>b.style.width);
+bars.forEach(b=>b.style.width='0%');
+const barObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      bars.forEach((b,i)=>{b.style.width=widths[i];});
+      barObs.disconnect();
+    }
+  });
+},{threshold:.3});
+const compSection=document.getElementById('compression');
+if(compSection)barObs.observe(compSection);
+
+})();
+
+// ── Embedded decoder ─────────────────────────────────────────────────────────
+(function(){
+
+// ── Word pools ───────────────────────────────────────────────────────────────
+const POOLS = {
+  short: [
+    'the','and','for','are','but','not','you','all','can','had','her','was',
+    'one','our','out','day','get','has','him','his','how','its','who','did',
+    'let','put','say','she','too','use','way','may','old','new','see','two',
+    'now','any','own','man','air','age','big','boy','car','cut','dog','end',
+    'far','few','got','hot','job','lot','low','mad','met','off','red','ran',
+    'run','set','six','ten','top','war','win','yet','ago','aim','ask','bad',
+    'bag','ban','bar','bat','bed','bit','box','buy','cat','cry','cup','due',
+    'eat','egg','eye','fit','fly','fun','gap','gas','gun','guy','hit','ice',
+    'key','kid','law','lay','leg','lie','mad','map','mix','net','odd','oil',
+  ],
+  medium: [
+    'about','after','again','being','black','blood','bring','build','carry',
+    'child','close','could','cover','death','doing','early','earth','enjoy',
+    'every','field','first','floor','focus','force','found','given','going',
+    'great','group','grown','guard','heart','heavy','house','human','inner',
+    'issue','judge','known','large','laugh','learn','leave','level','light',
+    'limit','lived','local','loved','lower','money','month','moral','music',
+    'needs','never','night','noted','often','order','other','party','peace',
+    'place','plane','plant','point','power','press','price','prime','quite',
+    'raise','reach','ready','right','river','round','scene','sense','seven',
+    'share','short','since','small','smith','solar','solid','sound','south',
+    'space','speed','stand','start','state','still','stone','store','story',
+    'study','style','sugar','table','taken','thank','their','there','these',
+    'thing','think','those','three','throw','title','today','total','touch',
+    'track','trade','train','treat','trial','tried','trust','truth','under',
+    'union','until','value','video','voice','water','where','which','while',
+    'whole','whose','woman','women','world','would','write','wrong','young',
+  ],
+  long: [
+    'another','because','between','billion','brought','carried','century',
+    'chapter','chicken','climate','comfort','command','comment','company',
+    'concept','content','control','council','country','covered','created',
+    'culture','current','decided','defense','defined','despite','diamond',
+    'digital','display','doctors','dynamic','economy','educated','effects',
+    'efforts','elected','element','english','enjoyed','entered','exactly',
+    'example','explain','express','failing','falling','feeling','finance',
+    'flowers','follows','forward','freedom','general','getting','glasses',
+    'greater','growing','handled','happily','history','husband','imagine',
+    'improve','include','initial','instead','involve','journey','justice',
+    'keeping','kitchen','leaders','learned','leather','leaving','managed',
+    'marriage','message','million','minutes','morning','nothing','nuclear',
+    'numbers','outside','parents','patient','perfect','perhaps','picture',
+    'playing','popular','present','private','problem','produce','protect',
+    'provide','quality','quarter','quickly','quickly','reading','reality',
+    'receive','reduced','remains','removed','require','results','returns',
+    'science','service','setting','several','singing','society','someone',
+    'special','started','station','subject','success','suggest','support',
+    'suppose','surface','systems','teacher','testing','through','tonight',
+    'trouble','turning','however','kitchen','morning','natural','playing',
+  ],
+};
+
+const SUB_SIZES = ['short','medium','long'];
+
+function pickFromPool(key) {
+  const p = POOLS[key];
+  return p[Math.floor(Math.random() * p.length)];
+}
+function pickSentenceWords(n) {
+  return Array.from({length: n}, () => pickFromPool(SUB_SIZES[Math.floor(Math.random()*3)]));
+}
+
+// ── Polybius grid ─────────────────────────────────────────────────────────────
+const LAYOUT = [
+  ['A','B','C','D','E'],
+  ['F','G','H','I','J'],
+  ['K','L','M','N','O'],
+  ['P','R','S','T','U'],
+  ['V','W','X','Y','Z'],
+];
+const POS = {};
+for (let r=0;r<5;r++) for (let c=0;c<5;c++) POS[LAYOUT[r][c]]={r,c};
+POS['Q'] = POS['X'];
+
+function cc(r,c,ox,oy,cell){
+  return { x: ox+c*cell+cell/2, y: oy+r*cell+cell/2 };
+}
+
+function learnDrawGlyph(canvas, word, opts) {
+  const SIZE = parseInt(canvas.style.width) || 64;
+  const dpr = window.devicePixelRatio||1;
+  canvas.width = SIZE*dpr; canvas.height = SIZE*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,SIZE,SIZE);
+
+  const PAD=3, CELL=(SIZE-PAD*2)/5, ox=PAD, oy=PAD;
+  const gm = opts.gridMode||'none';
+
+  // outer box — always visible
+  ctx.save();
+  ctx.strokeStyle='#cccccc'; ctx.lineWidth=1;
+  ctx.strokeRect(ox, oy, SIZE-PAD*2, SIZE-PAD*2);
+  ctx.restore();
+
+  // inner grid lines
+  if (gm !== 'none') {
+    ctx.save();
+    ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=0.5;
+    if (gm==='full'||gm==='v') for(let i=1;i<5;i++){const lx=ox+i*CELL;ctx.beginPath();ctx.moveTo(lx,oy);ctx.lineTo(lx,oy+SIZE-PAD*2);ctx.stroke();}
+    if (gm==='full'||gm==='h') for(let i=1;i<5;i++){const ly=oy+i*CELL;ctx.beginPath();ctx.moveTo(ox,ly);ctx.lineTo(ox+SIZE-PAD*2,ly);ctx.stroke();}
+    ctx.restore();
+  }
+
+  // letters
+  if (opts.showLetters) {
+    ctx.save();
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    const skip = opts.skipLetters || 0;
+    let letterIdx = 0;
+    for(let r=0;r<5;r++) for(let c=0;c<5;c++){
+      letterIdx++;
+      if(skip === 2 && letterIdx % 2 === 0) continue;
+      if(skip === 3 && (letterIdx - 1) % 3 !== 0) continue;
+      const lbl=(r===4&&c===2)?'X/Q':LAYOUT[r][c];
+      ctx.fillStyle='#cccccc';
+      ctx.font=lbl.length>1?`${Math.max(CELL*0.32,4)}px Space Grotesk,sans-serif`:`${Math.max(CELL*0.48,5)}px Space Grotesk,sans-serif`;
+      const {x,y}=cc(r,c,ox,oy,CELL);
+      ctx.fillText(lbl,x,y);
+    }
+    ctx.restore();
+  }
+
+  const upper=word.toUpperCase().replace(/[^A-Z]/g,'');
+  if(!upper)return;
+
+  // Build collapsed node list AND track which node index each letter maps to
+  const nodeList=[];
+  const letterToNode=[];
+  for(const ch of upper){
+    const p=POS[ch]; if(!p){letterToNode.push(-1);continue;}
+    const pr=[p.r,p.c];
+    if(!nodeList.length||nodeList[nodeList.length-1][0]!==pr[0]||nodeList[nodeList.length-1][1]!==pr[1])
+      nodeList.push(pr);
+    letterToNode.push(nodeList.length-1);
+  }
+  if(!nodeList.length)return;
+
+  const pts=nodeList.map(([r,c])=>cc(r,c,ox,oy,CELL));
+
+  // Double-letter: mark the node of the doubled letter directly
+  const doubleNodes=new Set();
+  for(let i=0;i<upper.length-1;i++){
+    if(upper[i]===upper[i+1]&&letterToNode[i]>=0)
+      doubleNodes.add(letterToNode[i]);
+  }
+
+  const LW=SIZE*0.05;
+  const INK='#000000';
+  ctx.strokeStyle=INK; ctx.fillStyle=INK;
+  ctx.lineWidth=LW; ctx.lineCap='butt'; ctx.lineJoin='round';
+
+  if(pts.length===1){
+    ctx.beginPath(); ctx.arc(pts[0].x,pts[0].y,LW,0,Math.PI*2); ctx.fill(); return;
+  }
+
+  const AL=SIZE*0.18, AA=Math.PI/5;
+  const last=pts[pts.length-1], prev=pts[pts.length-2];
+  const ang=Math.atan2(last.y-prev.y,last.x-prev.x);
+  // Pull endpoint back by AL + LW/2 so round cap meets arrowhead base exactly
+  const base={x:last.x-AL*0.309*Math.cos(ang),y:last.y-AL*0.309*Math.sin(ang)};
+
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length-1;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.lineTo(base.x,base.y); ctx.stroke();
+
+  // Arrowhead
+  const tipX=last.x+AL*0.5*Math.cos(ang),tipY=last.y+AL*0.5*Math.sin(ang);
+  ctx.beginPath(); ctx.moveTo(tipX,tipY);
+  ctx.lineTo(tipX-AL*Math.cos(ang-AA),tipY-AL*Math.sin(ang-AA));
+  ctx.lineTo(tipX-AL*Math.cos(ang+AA),tipY-AL*Math.sin(ang+AA));
+  ctx.closePath(); ctx.fill();
+
+  // Start dot
+  ctx.beginPath(); ctx.arc(pts[0].x,pts[0].y,SIZE*0.09,0,Math.PI*2); ctx.fill();
+
+  // Double-letter dots: ON the node of the doubled letter
+  for(const ni of doubleNodes){
+    const pt=pts[ni];
+    ctx.save();
+    ctx.fillStyle='#ffffff'; ctx.strokeStyle='#000000'; ctx.lineWidth=LW*0.5;
+    ctx.beginPath(); ctx.arc(pt.x,pt.y,SIZE*0.08,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// ── Particle system ──────────────────────────────────────────────────────────
+const learnPCanvas = document.getElementById('learn-particle-canvas');
+const pCtx = learnPCanvas.getContext('2d');
+let particles = [];
+
+function resizeParticleCanvas(){
+  learnPCanvas.width = window.innerWidth;
+  learnPCanvas.height = window.innerHeight;
+}
+resizeParticleCanvas();
+window.addEventListener('resize', resizeParticleCanvas);
+
+class Particle {
+  constructor(x,y,color,type='burst'){
+    this.x=x; this.y=y; this.color=color; this.type=type;
+    if(type==='burst'){
+      const ang=Math.random()*Math.PI*2;
+      const spd=2+Math.random()*5;
+      this.vx=Math.cos(ang)*spd; this.vy=Math.sin(ang)*spd-2;
+      this.life=1; this.decay=0.02+Math.random()*0.03;
+      this.size=2+Math.random()*4;
+    } else {
+      this.vx=(Math.random()-0.5)*0.4;
+      this.vy=-0.3-Math.random()*0.5;
+      this.life=0.4+Math.random()*0.6;
+      this.decay=0.003+Math.random()*0.005;
+      this.size=1+Math.random()*2;
+    }
+  }
+  update(){
+    this.x+=this.vx; this.y+=this.vy;
+    if(this.type==='burst') this.vy+=0.15;
+    this.life-=this.decay;
+    return this.life>0;
+  }
+  draw(){
+    pCtx.save();
+    pCtx.globalAlpha=this.life;
+    pCtx.fillStyle=this.color;
+    pCtx.beginPath();
+    pCtx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    pCtx.fill();
+    pCtx.restore();
+  }
+}
+
+function burst(x,y,colors,n=30){
+  for(let i=0;i<n;i++) particles.push(new Particle(x,y,colors[Math.floor(Math.random()*colors.length)],'burst'));
+}
+function ambientParticles(){
+  if(Math.random()<0.15) particles.push(new Particle(Math.random()*learnPCanvas.width, learnPCanvas.height+5,'#dddddd','ambient'));
+}
+
+function animParticles(){
+  pCtx.clearRect(0,0,learnPCanvas.width,learnPCanvas.height);
+  ambientParticles();
+  particles = particles.filter(p=>{ p.update(); p.draw(); return p.life>0; });
+  requestAnimationFrame(animParticles);
+}
+animParticles();
+
+// ── Timer ────────────────────────────────────────────────────────────────────
+let timerStart = null;
+let learnTimerElapsed = 0;
+let timerRunning = false;
+let timerRAF = null;
+let totalWordsAnswered = 0;
+
+function fmtTime(ms){
+  const s = ms/1000;
+  const m = Math.floor(s/60);
+  const sec = (s%60).toFixed(1).padStart(4,'0');
+  return `${String(m).padStart(2,'0')}:${sec}`;
+}
+
+function tickTimer(){
+  if(!timerRunning)return;
+  const now = performance.now();
+  const el = learnTimerElapsed + (now - timerStart);
+  learnTimerEl.textContent = fmtTime(el);
+  timerRAF = requestAnimationFrame(tickTimer);
+}
+
+function startTimer(){
+  if(timerRunning)return;
+  timerRunning=true;
+  timerStart=performance.now();
+  learnTimerEl.classList.add('running');
+  tickTimer();
+}
+function stopTimer(){
+  if(!timerRunning)return;
+  timerRunning=false;
+  learnTimerElapsed += performance.now()-timerStart;
+  learnTimerEl.classList.remove('running');
+  cancelAnimationFrame(timerRAF);
+}
+function resetTimer(){
+  stopTimer();
+  learnTimerElapsed=0;
+  learnTimerEl.textContent='00:00.0';
+  learnTimerEl.classList.remove('running');
+}
+function getElapsed(){ return timerRunning ? learnTimerElapsed+(performance.now()-timerStart) : learnTimerElapsed; }
+
+// ── Stage config ──────────────────────────────────────────────────────────────
+const REQUIRED_SUB = 5;
+const GRID_LEVELS = [
+  { label:'Level 1', desc:'All letters visible',      gridMode:'full', showLetters:true,  skipLetters:0, sentence:false },
+  { label:'Level 2', desc:'Every 2nd letter hidden',  gridMode:'full', showLetters:true,  skipLetters:2, sentence:false },
+  { label:'Level 3', desc:'Every 3rd letter hidden',  gridMode:'full', showLetters:true,  skipLetters:3, sentence:false },
+  { label:'Level 4', desc:'Grid only',                gridMode:'full', showLetters:false, skipLetters:0, sentence:false },
+  { label:'Level 5', desc:'Single axis',              gridMode:'h',    showLetters:false, skipLetters:0, sentence:false },
+  { label:'Level 6', desc:'No grid',                  gridMode:'none', showLetters:false, skipLetters:0, sentence:false },
+];
+const SENTENCE_LEVEL = { label:'Level 7', desc:'Sentences', gridMode:'none', showLetters:false, skipLetters:0, sentence:true };
+
+// Order: all grid levels for SHORT, then MEDIUM, then LONG, then SENTENCES
+const GRID_LEVEL_COUNT = GRID_LEVELS.length; // 6
+const STAGES = [];
+for(const sz of SUB_SIZES) for(const gl of GRID_LEVELS) STAGES.push({...gl, sub:sz});
+STAGES.push({...SENTENCE_LEVEL, sub:'sentence'});
+
+let stage=0, correct=0, currentWords=[], currentTarget='', missedQueue=[], locked=false;
+function currentCfg(){ return STAGES[stage]; }
+
+// ── DOM ───────────────────────────────────────────────────────────────────────
+const learnGlyphCard   = document.getElementById('learn-glyph-card');
+const learnInput   = document.getElementById('learn-word-input');
+const learnFeedback  = document.getElementById('learn-feedback');
+const learnProgressCnt = document.getElementById('learn-progress-count');
+const learnProgressBar = document.getElementById('learn-progress-fill');
+const learnLevelLbl    = document.getElementById('learn-level-label');
+const learnSubLbl      = document.getElementById('learn-sub-label');
+const learnOverlay     = document.getElementById('learn-overlay');
+const learnOverlayIcon = document.getElementById('learn-overlay-icon');
+const learnOverlayTitle= document.getElementById('learn-overlay-title');
+const learnOverlaySub  = document.getElementById('learn-overlay-sub');
+const learnOverlayMsg  = document.getElementById('learn-overlay-msg');
+const learnOverlayStats= document.getElementById('learn-overlay-stats');
+const learnOverlayBtn  = document.getElementById('learn-overlay-btn');
+const learnTimerEl     = document.getElementById('learn-timer');
+const learnResetBtn    = document.getElementById('learn-reset-btn');
+
+// ── UI updates ────────────────────────────────────────────────────────────────
+const subNames = { short:'Short words', medium:'Medium words', long:'Long words', sentence:'Sentences' };
+const levelDescs = {
+  'Level 1':'Letters & grid visible',
+  'Level 2':'Grid only',
+  'Level 3':'Single axis grid',
+  'Level 4':'No grid',
+  'Level 5':'Full sentences',
+};
+
+function updateLabels(){
+  const cfg=currentCfg();
+  learnLevelLbl.textContent = cfg.label + (cfg.desc ? ' — '+cfg.desc : '');
+  learnSubLbl.textContent   = subNames[cfg.sub] || '';
+}
+
+function updatePips(){
+  const cfg=currentCfg();
+  const isSentence=cfg.sub==='sentence';
+  const N=GRID_LEVEL_COUNT; // 6 grid levels per word-size group
+  const subGroupIdx=isSentence?3:Math.floor(stage/N);  // 0=short,1=med,2=long
+  const levelInGroup=isSentence?0:stage%N;              // 0-5 within group
+
+  document.querySelectorAll('.learn-level-pip').forEach((el,i)=>{
+    el.classList.remove('done','active');
+    if(isSentence){ if(i<N) el.classList.add('done'); else el.classList.add('active'); }
+    else {
+      if(i<levelInGroup) el.classList.add('done');
+      else if(i===levelInGroup) el.classList.add('active');
+    }
+  });
+
+  const subRow=document.getElementById('learn-sub-bar-row');
+  if(isSentence){ subRow.style.opacity='0.3'; }
+  else {
+    subRow.style.opacity='1';
+    document.querySelectorAll('.learn-sub-pip').forEach((el,i)=>{
+      el.classList.remove('done','active');
+      if(i<subGroupIdx) el.classList.add('done');
+      else if(i===subGroupIdx) el.classList.add('active');
+    });
+  }
+}
+
+function updateProgress(){
+  const req=REQUIRED_SUB;
+  const pct=Math.min(correct/req*100,100);
+  learnProgressBar.style.width=pct+'%';
+  learnProgressCnt.textContent=`${correct} / ${req}`;
+}
+
+// ── Render glyph ──────────────────────────────────────────────────────────────
+function renderGlyph(wordOverride){
+  const cfg=currentCfg();
+  const SIZE=96;
+  learnGlyphCard.innerHTML='';
+
+  if(cfg.sentence){
+    const n=4+Math.floor(Math.random()*3);
+    currentWords=pickSentenceWords(n);
+    currentTarget=currentWords.join(' ');
+    for(const w of currentWords){
+      const div=document.createElement('div'); div.className='glyph-word';
+      const cv=document.createElement('canvas');
+      cv.style.width=SIZE+'px'; cv.style.height=SIZE+'px';
+      div.appendChild(cv); learnGlyphCard.appendChild(div);
+      learnDrawGlyph(cv,w,cfg);
+    }
+    learnInput.placeholder='type the sentence…';
+  } else {
+    let w;
+    if(wordOverride) w=wordOverride;
+    else if(missedQueue.length>0&&Math.random()<0.2) w=missedQueue.shift();
+    else w=pickFromPool(cfg.sub);
+    currentWords=[w]; currentTarget=w;
+    const div=document.createElement('div'); div.className='glyph-word';
+    const cv=document.createElement('canvas');
+    const SINGLE_SIZE=200;
+    cv.style.width=SINGLE_SIZE+'px'; cv.style.height=SINGLE_SIZE+'px';
+    div.appendChild(cv); learnGlyphCard.appendChild(div);
+    learnDrawGlyph(cv,w,cfg);
+    learnInput.placeholder='type the word…';
+  }
+  learnInput.value='';
+  learnInput.classList.remove('correct','wrong');
+  learnFeedback.textContent='';
+  learnFeedback.className='';
+  learnInput.focus();
+}
+
+// ── Card flash ────────────────────────────────────────────────────────────────
+function flashCard(type){
+  learnGlyphCard.classList.add('flash-'+type);
+  setTimeout(()=>learnGlyphCard.classList.remove('flash-'+type), 400);
+}
+
+// ── Stage advance ─────────────────────────────────────────────────────────────
+function showStageOverlay(){
+  const isLast = stage>=STAGES.length;
+  if(isLast){
+    stopTimer();
+    const elapsed=getElapsed();
+    const wpm=Math.round(totalWordsAnswered/(elapsed/60000));
+    learnOverlayIcon.textContent='◆';
+    learnOverlayTitle.textContent='COMPLETE';
+    learnOverlaySub.textContent='All stages cleared';
+    learnOverlayMsg.textContent='You have mastered the Logographic Integrated Notation Expression System.';
+    learnOverlayStats.style.display='flex';
+    document.getElementById('learn-stat-time').textContent=fmtTime(elapsed);
+    document.getElementById('learn-stat-wpm').textContent=wpm;
+    learnOverlayBtn.textContent='PLAY AGAIN';
+    // big burst
+    const cx=window.innerWidth/2, cy=window.innerHeight/2;
+    burst(cx,cy,['#7c6fff','#ff6fa0','#4fffb0','#fff'],80);
+    setTimeout(()=>burst(cx-100,cy+50,['#7c6fff','#4fffb0'],40),300);
+    setTimeout(()=>burst(cx+100,cy+50,['#ff6fa0','#fff'],40),500);
+  } else {
+    learnOverlayIcon.textContent='◈';
+    learnOverlayTitle.textContent='STAGE CLEAR';
+    learnOverlaySub.textContent='Next: '+STAGES[stage].label+' — '+subNames[STAGES[stage].sub];
+    learnOverlayMsg.textContent='';
+    learnOverlayStats.style.display='none';
+    learnOverlayBtn.textContent='CONTINUE';
+    const cx=window.innerWidth/2, cy=window.innerHeight/3;
+    burst(cx,cy,['#7c6fff','#4fffb0','#fff'],40);
+  }
+  learnOverlay.classList.add('show');
+}
+
+function advance(){
+  stage++;
+  correct=0;
+  missedQueue=[];
+  showStageOverlay();
+}
+
+// ── Check answer ──────────────────────────────────────────────────────────────
+function check(){
+  if(locked)return;
+  const val=learnInput.value.trim().toLowerCase();
+  const target=currentTarget.toLowerCase();
+  if(!val)return;
+  locked=true;
+  startTimer();
+
+  if(val===target){
+    correct++;
+    totalWordsAnswered++;
+    learnInput.classList.add('correct');
+    learnFeedback.textContent='';
+    flashCard('correct');
+    updateProgress();
+    const REQ=REQUIRED_SUB;
+    if(correct>=REQ){
+      setTimeout(()=>{ locked=false; advance(); },400);
+    } else {
+      setTimeout(()=>{ locked=false; renderGlyph(); },300);
+    }
+  } else {
+    learnInput.classList.add('wrong');
+    learnFeedback.textContent='→ '+currentTarget;
+    learnFeedback.className='reveal';
+    flashCard('wrong');
+    if(!currentCfg().sentence) missedQueue.push(currentTarget);
+    setTimeout(()=>{
+      learnInput.classList.remove('wrong');
+      learnInput.value='';
+      learnFeedback.textContent='';
+      learnFeedback.className='';
+      locked=false;
+      renderGlyph();
+    },900);
+  }
+}
+
+learnInput.addEventListener('keydown',e=>{ if(e.key==='Enter') check(); });
+
+learnOverlayBtn.addEventListener('click',()=>{
+  learnOverlay.classList.remove('show');
+  if(stage>=STAGES.length){
+    stage=0; correct=0; totalWordsAnswered=0; missedQueue=[];
+    resetTimer();
+  }
+  updateLabels(); updatePips(); updateProgress();
+  renderGlyph();
+});
+
+learnResetBtn.addEventListener('click',()=>{
+  if(!confirm('Reset timer and restart from the beginning?'))return;
+  stage=0; correct=0; totalWordsAnswered=0; missedQueue=[]; locked=false;
+  resetTimer();
+  learnOverlay.classList.remove('show');
+  updateLabels(); updatePips(); updateProgress();
+  renderGlyph();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+updateLabels(); updatePips(); updateProgress();
+renderGlyph();
+
+})();
+
+// ── Spec grid draw ────────────────────────────────────────────────────────────
+(function(){
+const LAYOUT=[['A','B','C','D','E'],['F','G','H','I','J'],['K','L','M','N','O'],['P','R','S','T','U'],['V','W','X','Y','Z']];
+const cv=document.getElementById('spec-grid-canvas');
+if(!cv)return;
+function draw(){
+  const SIZE=cv.offsetWidth||180;
+  const dpr=window.devicePixelRatio||1;
+  cv.width=SIZE*dpr;cv.height=SIZE*dpr;
+  const ctx=cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,SIZE,SIZE);
+  const PAD=4,CELL=(SIZE-PAD*2)/5,ox=PAD,oy=PAD;
+  ctx.strokeStyle='#e0e0e0';ctx.lineWidth=.5;
+  for(let i=0;i<=5;i++){
+    ctx.beginPath();ctx.moveTo(ox+i*CELL,oy);ctx.lineTo(ox+i*CELL,oy+SIZE-PAD*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ox,oy+i*CELL);ctx.lineTo(ox+SIZE-PAD*2,oy+i*CELL);ctx.stroke();
+  }
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let r=0;r<5;r++)for(let c=0;c<5;c++){
+    const lbl=(r===4&&c===2)?'X/Q':LAYOUT[r][c];
+    const isXQ=lbl==='X/Q';
+    ctx.fillStyle=isXQ?'#1a1aff':'#000';
+    ctx.font=isXQ?`bold ${CELL*.34}px IBM Plex Mono,monospace`:`bold ${CELL*.44}px IBM Plex Mono,monospace`;
+    ctx.fillText(lbl,ox+c*CELL+CELL/2,oy+r*CELL+CELL/2);
+  }
+}
+draw();
+new ResizeObserver(draw).observe(cv);
+})();
+</script>
+</body>
+</html>
