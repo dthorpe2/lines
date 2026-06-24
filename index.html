@@ -23,7 +23,7 @@ a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
 
 /* ── Type scale ─────────────────────────────────────────────────────────────── */
-.t-display{font-family:var(--serif);font-size:clamp(3rem,9vw,7.5rem);line-height:.95;letter-spacing:-.02em;color:var(--black)}
+.t-display{font-family:var(--serif);font-size:clamp(1.6rem,4vw,3rem);line-height:1.05;letter-spacing:-.02em;color:var(--black)}
 .t-head{font-family:var(--serif);font-size:clamp(1.8rem,4vw,3.2rem);line-height:1.1;color:var(--black)}
 .t-subhead{font-family:var(--serif);font-size:clamp(1.2rem,2.5vw,1.8rem);line-height:1.3;font-style:italic}
 .t-body{font-size:1.05rem;line-height:1.75;color:var(--grey4);font-weight:300}
@@ -228,7 +228,7 @@ footer{padding:2rem;border-top:1px solid var(--grey2);display:flex;justify-conte
     <div class="hero-inner">
       <div class="hero-text">
         <div class="hero-eyebrow">Logographic Integrated Notation Expression System</div>
-        <div style="font-family:var(--mono);font-size:3rem;font-weight:700;letter-spacing:.18em;line-height:1;margin-bottom:.5rem">LINES</div>
+        <div style="font-family:var(--mono);font-size:6rem;font-weight:700;letter-spacing:.18em;line-height:1;margin-bottom:.5rem">LINES</div>
         <h1 class="t-display">One mark.<br>One word.</h1>
         <p class="hero-desc">LINES is a geometric writing system where every word — regardless of length — is encoded as a single stroke across a 5×5 grid. Compact, learnable, and machine-efficient.</p>
         <div class="hero-actions">
@@ -1457,7 +1457,11 @@ function renderGlyph(wordOverride){
   learnInput.classList.remove('correct','wrong');
   learnFeedback.textContent='';
   learnFeedback.className='';
-  learnInput.focus();
+  // Only focus if the user has scrolled to the learn section
+  if(document.activeElement!==learnInput){
+    const rect=learnInput.getBoundingClientRect();
+    if(rect.top>0&&rect.top<window.innerHeight) learnInput.focus();
+  }
 }
 
 // ── Card flash ────────────────────────────────────────────────────────────────
